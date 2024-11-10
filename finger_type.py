@@ -15,7 +15,7 @@ def is_rock(f1, f2, f3, f4, f5):
     return strai(f1) and strai(f2) and not strai(f3) and not strai(f4) and strai(f5)
 
 #ok
-def is_ok( f2, f3, f4, f5):
+def is_ok(f2, f3, f4, f5):
     return not strai(f2) and strai(f3) and strai(f4) and strai(f5)
 
 #0

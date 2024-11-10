@@ -76,24 +76,16 @@ def hand_angle(hand_: list[Position2d]) -> list[int]:
     # 根據回傳的座標將其轉換為向量
     def matrix(a: int, b: int) -> Vector2d:
         return Vector2d(hand_[a].x-hand_[b].x, hand_[a].y - hand_[b].y)
-    
-    angle = []
-    # 大拇指
-    angle.append(matrix(0, 2).angle(matrix(3, 4)))
 
-    # 食指
-    angle.append(matrix(0, 6).angle(matrix(7, 8))) 
-
-    # 中指
-    angle.append(matrix(0, 10).angle(matrix(11, 12)))
-    
-    # 無名指
-    angle.append(matrix(0, 14).angle(matrix(15, 16)))
-
-    # 小拇指
-    angle.append(matrix(0, 18).angle(matrix(19, 20)))
-
-    return angle
+    return [
+        matrix(*i).angle(matrix(*j)) for i, j in (
+            ((0, 2), (3, 4)), # 大拇指
+            ((0, 6), (7, 8)), # 食指
+            ((0, 10), (11, 12)), # 中指
+            ((0, 14), (15, 16)), # 無名指
+            ((0, 18), (19, 20)) # 小拇指
+        )
+    ]
 
 # 根據 5 根手指角度判斷為何種手勢
 def hand_pos(angle: list[int]):
@@ -191,7 +183,7 @@ with mp_hands.Hands(
             break
         
         img2 = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # 轉換成 RGB 色彩
-        results = hand.process(img2)                # 偵測手勢
+        results = hand.process(img2)                 # 偵測手勢
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
                 finger_points = []                   # 記錄手指節點座標的串列
