@@ -1,10 +1,9 @@
 import cv2
-from serial import Serial
 from mediapipe.python.solutions import hands
 from requests import get
 import math
 from finger_type import *
-
+from typing import overload
 # 定義一個二維空間的座標類別 有x, y兩種屬性
 class Position2d:
     """
@@ -32,8 +31,8 @@ class Vector2d(Position2d):
         pass
 
 #二次加載 新增 dot, angle
-
-class Vector2d(Vector2d):
+@overload
+class Vector2d:
     #向量的長度
     @property
     def size(self) -> int:
@@ -61,13 +60,11 @@ class Vector2d(Vector2d):
             `v: Vector2d` 某向量
         """
         try:
-            angle = math.degrees(math.acos(self.dot(v)/(self.size * v.size)))
+            return math.degrees(math.acos(self.dot(v)/(self.size * v.size)))
 
         except:
-            angle = 0
+            return 0
             
-        return angle
-    
 # 根據傳入的 21 個節點座標，得到該手指的角度
 def hand_angle(hand_: list[Position2d]) -> list[int]:
     """
@@ -178,7 +175,7 @@ def _default():
 # 啟用偵測手掌
 with mp_hands.Hands(
     max_num_hands=1, #可偵測手勢的最大數量
-    ) as hands:
+    ) as hand:
 
     if not cap.isOpened():
         print("Cannot open camera")
@@ -194,7 +191,7 @@ with mp_hands.Hands(
             break
         
         img2 = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # 轉換成 RGB 色彩
-        results = hands.process(img2)                # 偵測手勢
+        results = hand.process(img2)                # 偵測手勢
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
                 finger_points = []                   # 記錄手指節點座標的串列
