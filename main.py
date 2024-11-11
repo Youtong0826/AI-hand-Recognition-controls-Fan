@@ -165,50 +165,41 @@ def _default():
     return
 
 # 啟用偵測手掌
-with mp_hands.Hands(
-    max_num_hands=1, #可偵測手勢的最大數量
-    ) as hand:
-
+with mp_hands.Hands(max_num_hands=1) as hand: 
     if not cap.isOpened():
         print("Cannot open camera")
         exit()
-
     w, h = 540, 310                                  # 影像尺寸
     while True:
         ret, img = cap.read()                        # 讀取圖像
         img = cv2.resize(img, (w, h))                # 縮小尺寸，加快處理效率
-
         if not ret:
             print("Cannot receive frame")
             break
-        
         img2 = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # 轉換成 RGB 色彩
         results = hand.process(img2)                 # 偵測手勢
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
-                finger_points = []                   # 記錄手指節點座標的串列
-                for i in hand_landmarks.landmark:
-                    # 將 21 個節點換算成座標，記錄到 finger_points
-                    finger_points.append(Position2d(i.x*w, i.y*h))
-
+                # 將 21 個節點換算成座標，記錄到 finger_points
+                finger_points = [Position2d(i.x*w, i.y*h) for i in hand_landmarks.landmark] 
                 if finger_points:
                     finger_angle = hand_angle(finger_points) # 計算手指角度，回傳長度為 5 的串列
                     text = hand_pos(finger_angle)            # 取得手勢所回傳的內容
-                    cv2.putText(img, text, (30, 120), fontFace, 3, (107, 142, 35), 10, lineType) # 印出文字
+
+                    cv2.putText(img, 
+                        text, (30, 120), 
+                        fontFace, 3, (107, 142, 35), 
+                        10, lineType
+                    )
 
                     if text == '0':
                         _default()
-
                     elif text == "1":
                         on(port_4)
-
                     elif text == "2":
                         on(port_0)
-
                     elif text == "3":
                         on(port_2)
-
-                    
 
         cv2.imshow('手部感測系統', img)
         if cv2.waitKey(1)==ord("q"):
